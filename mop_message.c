@@ -14,21 +14,28 @@
 #include <KStreamADT.h>
 
 int main(int argc, char*argv[]) {
-    FILE *keyfile;
-    FILE *infile;
-    FILE *outfile;
+    //make three files
+    char *keyfile;
+    char *infile;
+    char *outfile;
+
+    //check if using it correctly
     if(argc != 4) {
         fprintf(stderr, "Usage: mop_message keyfile in-file [ out-file | - ]\n");
         return EXIT_FAILURE;
     }
-
-    keyfile = fopen(argv[1], "rb");
-    infile = fopen(argv[2], "r");
+    
+    //initialize file names based on arguments
+    keyfile = argv[1];
+    infile = argv[2];
     if(argv[3] == "-") {
-        outfile = stdout;
+        outfile = "stdout";
     }
     else {
-        outfile = fopen(argv[3], "wb");
+        outfile = argv[3];
     }
+
+    kstreamADT stream = ks_create(keyfile);
+    
 
 }

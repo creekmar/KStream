@@ -9,9 +9,13 @@
 //
 // // // // // // // // // // // // // // // // // // // // // // // // //
 
-typedef struct stream *kstreamADT;
+typedef struct kstream *kstreamADT;
 
-kstreamADT ks_create(FILE *input);
+/// ks_create function: creates a new kstreamADT instance
+/// @param file         the name of the file with the key in it
+/// @return             a new kstreamADT
+kstreamADT ks_create(char *file);
+
 kstreamADT ks_destroy(kstreamADT);
 kstreamADT ks_translate(kstreamADT);
 
