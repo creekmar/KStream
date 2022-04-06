@@ -13,6 +13,19 @@
 #include <stdlib.h>
 #include <KStreamADT.h>
 
+/// getinput         reads in the text from the input file
+/// @param infile    the name of the input file to read
+/// @return          the string read in
+char * getinput(char * infile) {
+    FILE * fp = fopen(infile, "r");
+    char * output;
+    char tmp;
+    while((tmp = getc(fp)) != EOF) {
+        strncat(output, &tmp, 1);
+    }
+    return output;
+}
+
 int main(int argc, char*argv[]) {
     //make three files
     char *keyfile;
