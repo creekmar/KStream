@@ -26,6 +26,18 @@ typedef struct kstream {
     unsigned int j;
 } *kstreamADT;
 
+/// next_byte returns the next encrypted byte
+/// @return    the next byte
+static unsigned char next_byte() {
+    index1 = (index1+1) % 256;
+    index2 = (index2 + stream[index1]) % 256;
+    unsigned char tmp = stream[index1];
+    stream[index1] = stream[index2];
+    stream[index2] = tmp;
+    tmp = stream[(stream[index1] + stream[index2]) % 256];
+    return tmp;
+}
+
 /// ks_create creates a new kstreamADT
 kstreamADT ks_create(char *file) {
     //get key
@@ -42,10 +54,14 @@ kstreamADT ks_create(char *file) {
     //randomize elements by swapping different indexes
     index2 = 0;
     for(index1 = 0; index1 < 256; index1++) {
-        index2 = (index2 + stream[index1] + box->key[index1%box->kelen])%256;
+        index2 = (index2 + stream[index1] + box->key[index1 % box->kelen]) % 256;
         unsigned char tmp = stream[index1];
         stream[index1] = stream[index2];
         stream[index2] = tmp;
+    }
+    //skip first 1024 bytes of KStream to prime system
+    for(int i = 0; i < 1025; i++) {
+        next_byte();
     }
 
     fclose(fp);
