@@ -8,6 +8,12 @@
 //
 // // // // // // // // // // // // // // // // // // // // //
 
+#define _DEFAULT_SOURCE
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <ctype.h>
+#include "KStream.h"
 #define index1 box->i
 #define index2 box->j
 #define stream box->s
@@ -18,23 +24,23 @@
 /// s               stream table of random bytes for encryption
 /// i               the first index
 /// j               the second index
-typedef struct kstream {
+struct kstream {
     unsigned char key[8];
     unsigned long keylen;
     unsigned char s[256];
     unsigned int i;
     unsigned int j;
-} *kstreamADT;
+};
 
 /// next_byte returns the next encrypted byte
 /// @return    the next byte
-static unsigned char next_byte() {
-    index1 = (index1+1) % 256;
-    index2 = (index2 + stream[index1]) % 256;
-    unsigned char tmp = stream[index1];
-    stream[index1] = stream[index2];
-    stream[index2] = tmp;
-    tmp = stream[(stream[index1] + stream[index2]) % 256];
+static unsigned char next_byte(kstreamADT box) {
+    box->i = (box->i+1) % 256;
+    box->j = (box->j + stream[box->i]) % 256;
+    unsigned char tmp = stream[box->i];
+    stream[box->i] = stream[box->j];
+    stream[box->j] = tmp;
+    tmp = stream[(stream[box->i] + stream[box->j]) % 256];
     return tmp;
 }
 
@@ -47,31 +53,39 @@ kstreamADT ks_create(char *file) {
     box->keylen = 8;
     
     //initialize the stream
-    for(index1 = 0; index1 < 256; index1++) {
-        stream[index1] = index1;
+    for(box->i = 0; box->i < 256; box->i++) {
+        stream[box->i] = box->i;
     }
 
     //randomize elements by swapping different indexes
-    index2 = 0;
-    for(index1 = 0; index1 < 256; index1++) {
-        index2 = (index2 + stream[index1] + box->key[index1 % box->kelen]) % 256;
-        unsigned char tmp = stream[index1];
-        stream[index1] = stream[index2];
-        stream[index2] = tmp;
+    box->j = 0;
+    for(box->i = 0; box->i < 256; box->i++) {
+        box->j = (box->j + stream[box->i] + box->key[box->i % box->keylen]) % 256;
+        unsigned char tmp = stream[box->i];
+        stream[box->i] = stream[box->j];
+        stream[box->j] = tmp;
     }
     //skip first 1024 bytes of KStream to prime system
     for(int i = 0; i < 1025; i++) {
-        next_byte();
+        next_byte(box);
     }
 
     fclose(fp);
     return box;
 }
 
-kstreamADT ks_destroy(kstreamADT box) {
+void ks_destroy(kstreamADT box) {
     free(box);
 }
 
-kstreamADT ks_translate(kstreamADT box) {
-
+char * ks_translate(kstreamADT box, size_t len, char *input) {
+    if(len == 0) {
+        return "";
+    }
+    char * output = (char *)malloc(len);
+    for(size_t i = 0; i < len; i++) {
+        char tmp = input[i] ^ next_byte(box);
+        strncat(output, &tmp, 1);
+    }
+    return output;
 }

@@ -9,6 +9,11 @@
 //
 // // // // // // // // // // // // // // // // // // // // // // // // //
 
+#ifndef _KSTREAM_H_
+#define _KSTREAM_H_
+
+#include <stdlib.h>
+
 typedef struct kstream *kstreamADT;
 
 /// ks_create function: creates a new kstreamADT instance
@@ -16,6 +21,6 @@ typedef struct kstream *kstreamADT;
 /// @return             a new kstreamADT
 kstreamADT ks_create(char *file);
 
-kstreamADT ks_destroy(kstreamADT);
-kstreamADT ks_translate(kstreamADT);
-
+void ks_destroy(kstreamADT box);
+char * ks_translate(kstreamADT box, size_t len, char *input);
+#endif
