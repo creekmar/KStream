@@ -25,13 +25,12 @@ char * getinput(FILE * fp) {
         strncat(output, &tmp, 1);
     }
 
-    char * out = (char *)malloc(strlen(output)-2);
+    char * out = (char *)malloc(strlen(output)-1);
+    out[0] = '\0';
     strncpy(out, output, strlen(output)-2);
-
-    printf("Testing: %s\ndone\n", out);
-    //copy input to a char pointer that can be moved (heap)
-    //size_t actual_len = strlen(output)-1;
-   // printf("length: %ld\nActual length: %ld\n", strlen(output), actual_len);
+//    tmp = '\0';
+  //  strncat(out, &tmp, 1); 
+    //printf("Testing: %s\ndone\n", out);
     
     return out;
 }
@@ -61,14 +60,16 @@ int main(int argc, char*argv[]) {
     //continuously write translated file input into the output file
     while(!feof(fp)) {
         char * input = getinput(fp);
-        output = ks_translate(stream, strlen(input)+1, input);
-        fwrite(output, strlen(output)+1, 1, outfile);
+        output = ks_translate(stream, strlen(input) + 1, input);
+        fwrite(output, strlen(output), 1, outfile);
+        free(input);
         free(output);
     }
 
     if(outfile != stdout) {
         fclose(outfile);
     }
+    fclose(fp);
 
     printf("Done\n");
    
