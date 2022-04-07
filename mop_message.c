@@ -17,19 +17,22 @@
 /// getinput         reads in the text from the input file
 /// @param infile    the name of the input file to read
 /// @return          the string read in
-char * getinput(char * infile) {
-    FILE * fp = fopen(infile, "r");
-    char output[2000];
+char * getinput(FILE * fp) {
+    char output[2000] = "";
     char tmp;
-    while((tmp = getc(fp)) != EOF) {
+    while(!feof(fp) && (strlen(output) != 1999)) {
+        tmp = getc(fp);
         strncat(output, &tmp, 1);
     }
 
-    //copy input to a char pointer that can be moved (heap)
-    size_t actual_len = strlen(output)-2;
-    char * out = (char *)malloc(actual_len);
-    strncpy(out, output+1, actual_len);
+    char * out = (char *)malloc(strlen(output)-2);
+    strncpy(out, output, strlen(output)-2);
 
+    printf("Testing: %s\ndone\n", out);
+    //copy input to a char pointer that can be moved (heap)
+    //size_t actual_len = strlen(output)-1;
+   // printf("length: %ld\nActual length: %ld\n", strlen(output), actual_len);
+    
     return out;
 }
 
@@ -41,22 +44,34 @@ int main(int argc, char*argv[]) {
         return EXIT_FAILURE;
     }
     
-    //initialize stuff
-    kstreamADT stream = ks_create(argv[1]);
-    char * input = getinput(argv[2]);
-    char * output;
-    output = ks_translate(stream, strlen(input), input);
-
+    //open outfile
+    FILE * outfile;
     if(strncmp(argv[3], "-", 1) == 0) {
-        printf("%s\n", output);
+        outfile = stdout;
     }
     else {
-        FILE * outfile = fopen(argv[3], "w");
-        fwrite(output, strlen(input), 1, outfile);
+        outfile = fopen(argv[3], "w");
     }
-    printf("Done\n");
+
+    //creating instances
+    kstreamADT stream = ks_create(argv[1]);
+    FILE * fp = fopen(argv[2], "r");
+    char * output;
     
-    free(output);
+    //continuously write translated file input into the output file
+    while(!feof(fp)) {
+        char * input = getinput(fp);
+        output = ks_translate(stream, strlen(input)+1, input);
+        fwrite(output, strlen(output)+1, 1, outfile);
+        free(output);
+    }
+
+    if(outfile != stdout) {
+        fclose(outfile);
+    }
+
+    printf("Done\n");
+   
     ks_destroy(stream);
 
 }
