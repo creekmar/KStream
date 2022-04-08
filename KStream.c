@@ -34,10 +34,10 @@ struct kstream {
 
 /// next_byte returns the next encrypted byte
 /// @return    the next byte
-static char next_byte(kstreamADT box) {
+static unsigned char next_byte(kstreamADT box) {
     box->i = (box->i+1) % 256;
     box->j = (box->j + stream[box->i]) % 256;
-    char tmp = stream[box->i];
+    unsigned char tmp = stream[box->i];
     stream[box->i] = stream[box->j];
     stream[box->j] = tmp;
     tmp = stream[(stream[box->i] + stream[box->j]) % 256];
@@ -74,21 +74,22 @@ kstreamADT ks_create(char *file) {
     return box;
 }
 
+// ks_destroy frees a kstreamADT instance
 void ks_destroy(kstreamADT box) {
     free(box);
 }
 
+// ks_translate takes an array of bytes and returns an encrypted or decrypted
+// version
 char * ks_translate(kstreamADT box, size_t len, char *input) {
     if(len == 0) {
         return "";
     }
     char * output = (char *)malloc(len+1);
-    output[0] = '\0';
-    for(size_t i = 0; i < len - 1; i++) {
-        char tmp = input[i] ^ next_byte(box);
-        strncat(output, &tmp, 1);
+    for(size_t i = 0; i < len; i++) {
+        unsigned char tmp = input[i] ^ next_byte(box);
+        output[i] = tmp;
     }
-    //char tmp = '\0';
-    //strncat(output, &tmp, 1);
+    output[len] = '\0';
     return output;
 }
