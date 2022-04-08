@@ -21,6 +21,14 @@ typedef struct kstream *kstreamADT;
 /// @return             a new kstreamADT
 kstreamADT ks_create(char *file);
 
+/// ks_destroy function: destroys a kstreamADT instance
+/// @box                 the kstream instance
 void ks_destroy(kstreamADT box);
+
+/// ks_translate function: translates given text to either encrypted or decrypted text depending on what was given
+/// @param box           the kstream instance
+/// @param len           the size of the input string
+/// @param input         pointer to array of chats
+/// @return              the translated text
 char * ks_translate(kstreamADT box, size_t len, char *input);
 #endif

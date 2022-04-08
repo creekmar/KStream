@@ -8,11 +8,9 @@
 //
 // // // // // // // // // // // // // // // // // // // // //
 
-#define _DEFAULT_SOURCE
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <ctype.h>
 #include "KStream.h"
 #define index1 box->i
 #define index2 box->j

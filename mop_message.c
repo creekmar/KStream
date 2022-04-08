@@ -39,8 +39,6 @@ char * getinput(FILE * fp) {
     }
     strncpy(out, output, strlen(output)-1);
     out[strlen(output)-1] = '\0';
-    printf("output: %s\n", out);
-    
     return out;
 }
 
@@ -73,15 +71,15 @@ int main(int argc, char*argv[]) {
     //continuously write translated file input into the output file
     while(!feof(fp)) {
         char * input = getinput(fp);
-        printf("Output: %s\n", input);
         assert(input != NULL);
         output = ks_translate(stream, strlen(input) + 1, input);
         assert(output != NULL);
         if(outfile != stdout) {
             fwrite(output, strlen(output), 1, outfile);
         }
+        //print to stdout only ascii and hex
         else {
-            for(int i = 0; i < (strlen(output)+1); i++) {
+            for(size_t i = 0; i < (strlen(output)+1); i++) {
                if(isascii(output[i])) {
                    printf("%c", output[i]);
                }
